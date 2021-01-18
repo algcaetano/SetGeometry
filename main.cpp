@@ -1,6 +1,7 @@
 #include <iostream>
 #include"polygon.h"
 #include"point2d.h"
+#include"line2d.h"
 #include<vector>
 #include <algorithm>    // std::sort
 
