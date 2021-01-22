@@ -16,26 +16,43 @@ Polygon::Polygon(std::vector<Point2d>& vert)
     {
         for (unsigned int i = 0; i < (vert.size()-1); i++)
         {
-            this->external.push_back({vert[i], vert[i+1]});
+            this->external.push_back({vert[i], vert[i+1]-vert[i]});
         }
-        this->external.push_back({vert.back(), vert.front()});
+        this->external.push_back({vert.back(), vert.front()-vert.back()});
+        findLimits(vert);
     }
 }
-std::vector<std::vector<Point2d>> Polygon::createLines(std::vector<Point2d>& vert)
+std::vector<Line2d> Polygon::createLines(std::vector<Point2d>& vert)
 {
     if (vert.size()<3){
         std::cerr<<"not enougth points"<<std::endl;
-        return std::vector<std::vector<Point2d>>{};
+        return std::vector<Line2d>{};
     }
     else
     {
-        std::vector<std::vector<Point2d>> output;
+        std::vector<Line2d> output;
         for (unsigned int i = 0; i < (vert.size()-1); i++)
         {
-            output.push_back({vert[i], vert[i+1]});
+            output.push_back({vert[i], vert[i+1]-vert[i]});
         }
-        output.push_back({vert.back(), vert.front()});
+        output.push_back({vert.back(), vert.front()-vert.back()});
         return output;
+    }
+}
+
+void Polygon::findLimits(std::vector<Point2d>& vert)
+{
+    this->minP = this->maxP = vert[0];
+    for (unsigned int i = 0; i < vert.size(); i++)
+    {
+        if(vert[i]<this->minP)
+        {
+            this->minP = vert[i];
+        }
+        if (vert[i]>this->maxP)
+        {
+            this->maxP = vert[i];
+        }
     }
 }
 

@@ -15,24 +15,17 @@ Point2d operator*(const double& d, const Point2d& p){
 
 int main()
 {
-    vector<Point2d> pVec{Point2d(0,0), Point2d(1.1, 0), Point2d(1.1, -1)};
-    sort(pVec.begin(), pVec.end());
-    Point2d p1(0.1, -9);
-    Point2d p2(0.2, -9);
-    double d = 2.5;
+    vector<Point2d> vert = {Point2d(0.0, 1.0),
+                            Point2d(1.0, 1.0),
+                            Point2d(1.0, 1.5),
+                            Point2d(1.5, 1.5),
+                            Point2d(1.5, 0.25),
+                            Point2d(1.0, 0.25),
+                            Point2d(1.0, 0.5),
+                            Point2d(0.5, 0.5),
+                            Point2d(0.5, 0.0),
+                            Point2d(0.0, 0.0)};
+    Polygon poly(vert);
 
-    cout << "the distance between p1 and p2 is: "<<p1.distance(p2)<<endl;
-    if(p1<p2)
-    {
-        cout<<"p1 < p2"<<endl;
-    }
-    else
-    {
-        cout<<"p1 > p2"<<endl;
-    }
-    cout << "p1+p2= (" << (p1+p2).x << "," << (p1+p2).y <<")" <<endl;
-    cout << "p1-p2= (" << (p1-p2).x << "," << (p1-p2).y <<")" <<endl;
-    cout << "p1*d= (" << (p1*d).x << "," <<(p1*d).y << ") d*p1= (" << (d*p1).x << "." << (d*p1).y <<")" <<endl;
-    cout << "Hello World!" << endl;
     return 0;
 }
