@@ -14,8 +14,8 @@ public:
     ~Polygon();
     //members
     std::vector<Line2d> external; //only one external polygon made of lines segments
-    std::vector<std::vector<std::vector<Point2d>>> internals; //can have multiple holes each one defined by one polygon made of line segments
-    Point2d minP, maxP;
+    std::vector<std::vector<Line2d>> internals; //can have multiple holes each one defined by one polygon made of line segments
+    Point2d minP, maxP; //bottom left and up right limits
     //functions
     void addHole(std::vector<Point2d> vert);
     bool isInside(Point2d p);

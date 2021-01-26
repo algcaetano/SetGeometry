@@ -14,11 +14,7 @@ Polygon::Polygon(std::vector<Point2d>& vert)
     }
     else
     {
-        for (unsigned int i = 0; i < (vert.size()-1); i++)
-        {
-            this->external.push_back({vert[i], vert[i+1]-vert[i]});
-        }
-        this->external.push_back({vert.back(), vert.front()-vert.back()});
+        this->external = createLines(vert);
         findLimits(vert);
     }
 }
@@ -53,6 +49,17 @@ void Polygon::findLimits(std::vector<Point2d>& vert)
         {
             this->maxP = vert[i];
         }
+    }
+}
+bool Polygon::isInside(Point2d p)
+{
+    if (p<minP||p>maxP) //out of limits
+    {
+        return false;
+    }
+    else
+    {
+        return true;
     }
 }
 
