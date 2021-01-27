@@ -25,6 +25,7 @@ private:
     //functions
     std::vector<Line2d> createLines(std::vector<Point2d>& vert);
     void findLimits(std::vector<Point2d>& vert);
+    int numberOfCross(Line2d& line);
 };
 
 #endif // POLYGON_H

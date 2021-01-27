@@ -1,5 +1,6 @@
 #include "polygon.h"
 #include<iostream>
+#include "AuxFunctions.h"
 
 Polygon::Polygon()
 {
@@ -51,6 +52,7 @@ void Polygon::findLimits(std::vector<Point2d>& vert)
         }
     }
 }
+
 bool Polygon::isInside(Point2d p)
 {
     if (p<minP||p>maxP) //out of limits
@@ -59,8 +61,39 @@ bool Polygon::isInside(Point2d p)
     }
     else
     {
-        return true;
+        Line2d line(p,Point2d(this->maxP.x+1,p.y));
+        if((numberOfCross(line)%2)==0)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+
     }
+}
+
+int Polygon::numberOfCross(Line2d& line)
+{
+    int count = 0;
+    for(unsigned int i = 0; i < this->external.size(); i++)
+    {
+        double a;
+        bool isParallel;
+        if(line.isOnSegment(this->external[i], a, isParallel))
+        {
+            if (compareDouble(a,0)) //point lies on the segment
+            {
+                return 1;
+            }
+            else if(!isParallel)
+            {
+                count++;
+            }
+        }
+    }
+    return count;
 }
 
 void Polygon::addHole(std::vector<Point2d> vert)

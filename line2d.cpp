@@ -18,7 +18,7 @@ Line2d::Line2d(Point2d r0, Point2d v)
     this->v = v;
 }
 
-void Line2d::setId(int id) //set an identification number to this line segment
+void Line2d::setId(int id)
 {
     this->id = id;
 }
@@ -33,70 +33,89 @@ double Line2d::dot(const Line2d line) //internal product
     return (this->v.x*line.v.x + this->v.y*line.v.y);
 }
 
-bool Line2d::isCrossing(Line2d& line, Point2d& crossPoint)
+bool Line2d::isCrossing(Line2d& line, double& a, bool& isParallel)
 {
-    if (this->r0==line.r0) //lines have the same reference point
+    double v1VetV2 = this->cross(line);
+    double drVetV2 = Line2d(Point2d(0,0), (line.r0-this->r0)).cross(line);
+    if(compareDouble(v1VetV2,0))
     {
-        crossPoint = this->r0;
+        if(compareDouble(drVetV2,0))
+        {
+            a = 0;
+            isParallel = true;
+            return true;
+        }
+        else
+        {
+            a = 2;
+            isParallel = true;
+            return false;
+        }
+    }
+    else
+    {
+        a = drVetV2/v1VetV2;
+        isParallel = false;
         return true;
     }
-    else //lines have distinct reference points
-    {
-        if(!compareDouble(cross(line),0)) //segments are not parallels
-        {
-            double scale = Line2d(Point2d(0,0), (line.r0-this->r0)).cross(line)/this->cross(line);
-            if (compareDouble(scale,0) || compareDouble(scale,1)) //intersection point lies on one of the tips
-            {
-                crossPoint = this->r0 + this->v*scale;
-                return true;
-            }
-            else if (scale > 0 && scale < 1) //intersection point lies on middle of the segment
-            {
-                crossPoint = this->r0 + this->v*scale;
-                return true;
-            }
-            else //intersection point lies outside the segment
-            {
-                return false;
-            }
+}
 
-        }
-        else //segments are parallels
+bool Line2d::isOnSegment(Line2d& line, double& a, bool& isParallel)
+{
+    if (isCrossing(line, a, isParallel))
+    {
+        if (isParallel)
         {
-            if (compareDouble(Line2d(Point2d(0,0), (line.r0-this->r0)).cross(*this), 0)) //segments are coincidents
+            double dist1 = calculateA(line.r0);
+            Point2d pf = line.r0+line.v;
+            double dist2 = calculateA(pf);
+            if(isOnRange(0,1,dist1)||isOnRange(0,1,dist2))
             {
-                double scale = Line2d(Point2d(0,0), (line.r0-this->r0)).dot(line)/this->dot(*this);
-                double scale2 = Line2d(Point2d(0,0), ((line.r0-this->r0))+line.v).dot(line)/this->dot(*this);
-                if (compareDouble(scale,0) || compareDouble(scale,1)) //reference point of second segment lies on the tips of first
+                if (isOnRange(0,1,dist1)&&isOnRange(0,1,dist2))
                 {
-                    crossPoint = this->r0 + this->v*scale;
+                    a = (dist1<dist2)?dist1:dist2;
+                }
+                else
+                {
+                    a = isOnRange(0,1,dist1)?dist1:dist2;
+                }
+                return true;
+            }
+            else
+            {
+                if(isOnRange(0,1,line.calculateA(this->r0)))
+                {
+                    a = 0;
                     return true;
                 }
-                else if (scale > 0 && scale < 1) //reference point of second segment lies on middle of the first segment
+                else
                 {
-                    crossPoint = this->r0 + this->v*scale;
-                    return true;
-                }
-                else if (compareDouble(scale2,0) || compareDouble(scale2,1)) //final point of the second segment lies on the tips of the first segment
-                {
-                    crossPoint = this->r0 + this->v*scale2;
-                    return true;
-                }
-                else if (scale2 > 0 && scale2 < 1) //final point of the second segment lies on the middle of the first segment
-                {
-                    crossPoint = this->r0 + this->v*scale2;
-                    return true;
-                }
-                else //segments do not overlap
-                {
+                    a = 2;
                     return false;
                 }
             }
-            else //segments are parallel but not coincidents
-            {
-                return false;
-            }
         }
+        else
+        {
+            return isOnRange(0,1,a)?true:false;
+        }
+    }
+    else
+    {
+        a = 2;
+        return false;
+    }
+}
+
+double Line2d::calculateA(Point2d& p)
+{
+    if(!compareDouble(this->v.x,0))
+    {
+        return (p-this->r0).x/this->v.x;
+    }
+    else
+    {
+        return (p-this->r0).y/this->v.y;
     }
 }
 

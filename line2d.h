@@ -20,15 +20,20 @@ public:
     //int id => identification number of the line
 
     //functions
-    bool isCrossing(Line2d& line, Point2d& crossPoint);
+    bool isCrossing(Line2d& line, double& a, bool& isParallel);
     //isCrossing => checks if line 1 crosses line 2
     //@return bool => returns true if lines cross and false if dont
     //@param Line2d& line => line to be checked
-    //@param Point2d& crossPoint => point where lines intersect
-
+    //@param double2d& a => factor such that pInt = r + v*a is the intersection point
+    //@param bool& isParallel => flag to check if lines are parallel (true) or not (false)
+    bool isOnSegment(Line2d& line, double& a, bool& isParallel);
+    //isOnSegment => checks if the segments (r1+v1) and (r2+v2) of the CROSSING LINES intersect
+    //@return bool => true if segments intersect
+    //@param Line2d& line => line segment to be compared
     void setId(int id);
     //setID => relate an ID to this line segment
     //@param int id = the ID number
+    double calculateA(Point2d& p);
 
 private:
     double cross(const Line2d line);
