@@ -20,13 +20,13 @@ public:
     //int id => identification number of the line
 
     //functions
-    bool isCrossing(Line2d& line, double& a, bool& isParallel);
+    bool isCrossing(Line2d& line, double& a, double& b, bool& isParallel);
     //isCrossing => checks if line 1 crosses line 2
     //@return bool => returns true if lines cross and false if dont
     //@param Line2d& line => line to be checked
     //@param double2d& a => factor such that pInt = r + v*a is the intersection point
     //@param bool& isParallel => flag to check if lines are parallel (true) or not (false)
-    bool isOnSegment(Line2d& line, double& a, bool& isParallel);
+    bool isOnSegment(Line2d& line, double& a, double& b, bool& isParallel);
     //isOnSegment => checks if the segments (r1+v1) and (r2+v2) of the CROSSING LINES intersect
     //@return bool => true if segments intersect
     //@param Line2d& line => line segment to be compared

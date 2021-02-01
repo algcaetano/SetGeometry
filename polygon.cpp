@@ -79,9 +79,9 @@ int Polygon::numberOfCross(Line2d& line)
     int count = 0;
     for(unsigned int i = 0; i < this->external.size(); i++)
     {
-        double a;
+        double a, b;
         bool isParallel;
-        if(line.isOnSegment(this->external[i], a, isParallel))
+        if(line.isOnSegment(this->external[i], a, b, isParallel))
         {
             if (compareDouble(a,0)) //point lies on the segment
             {

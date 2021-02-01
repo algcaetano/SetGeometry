@@ -27,5 +27,9 @@ int main()
                             Point2d(0.0, 0.0)};
     Polygon poly(vert);
 
+    double a, b;
+    bool isParalell;
+    bool isOnSegment = poly.external[0].isOnSegment(poly.external[2], a, b, isParalell);
+
     return 0;
 }
