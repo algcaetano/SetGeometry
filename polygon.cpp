@@ -39,61 +39,70 @@ std::vector<Line2d> Polygon::createLines(std::vector<Point2d>& vert)
 
 void Polygon::findLimits(std::vector<Point2d>& vert)
 {
-    this->minP = this->maxP = vert[0];
+    double minX = vert[0].x;
+    double maxX = minX;
+    double minY = vert[0].y;
+    double maxY = minY;
     for (unsigned int i = 0; i < vert.size(); i++)
     {
-        if(vert[i]<this->minP)
-        {
-            this->minP = vert[i];
-        }
-        if (vert[i]>this->maxP)
-        {
-            this->maxP = vert[i];
-        }
+        minX = (vert[i].x<minX)?vert[i].x:minX;
+        minY = (vert[i].y<minY)?vert[i].y:minY;
+        maxX = (vert[i].x>maxX)?vert[i].x:maxX;
+        maxY = (vert[i].y>maxY)?vert[i].y:maxY;
     }
+    this->maxP.x = maxX;
+    this->maxP.y = maxY;
+    this->minP.x = minX;
+    this->minP.y = minY;
 }
 
-bool Polygon::isInside(Point2d p)
+bool Polygon::isInside(Point2d p, bool& isOn)
 {
     if (p<minP||p>maxP) //out of limits
     {
+        isOn = false;
         return false;
     }
     else
     {
         Line2d line(p,Point2d(this->maxP.x+1,p.y));
-        if((numberOfCross(line)%2)==0)
+        double a = 2;
+        double b = 2;
+        int i = 0;
+        int count = 0;
+        int numVert = this->external.size();
+        bool parallel =false;
+        bool inter = false;
+        while((i<numVert)&&a!=0)
         {
+            inter = line.isOnSegment(this->external[i], a, b, parallel);
+            if(inter && !parallel)
+            {
+                i+=1;
+                count+=1;
+            }
+            else
+            {
+                i+=1;
+            }
+        }
+        if(a==0)
+        {
+            isOn = true;
+            return true;
+        }
+        else if((count%2)==0)
+        {
+            isOn = false;
             return false;
         }
         else
         {
+            isOn = false;
             return true;
         }
 
     }
-}
-
-int Polygon::numberOfCross(Line2d& line)
-{
-    int count = 0;
-    for(unsigned int i = 0; i < this->external.size(); i++)
-    {
-        double a, b;
-        bool isParallel;
-        if(line.isOnSegment(this->external[i], a, b, isParallel))
-        {
-            if (compareDouble(a,0)) //point lies on the segment
-            {
-                return 1;
-            }
-            else if(!isParallel)
-            {
-                count++;
-            }
-        }
-    }
-    return count;
 }
 
 void Polygon::addHole(std::vector<Point2d> vert)

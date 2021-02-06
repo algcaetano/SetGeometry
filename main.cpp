@@ -4,6 +4,7 @@
 #include"line2d.h"
 #include<vector>
 #include <algorithm>    // std::sort
+#include <math.h>
 
 using namespace std;
 
@@ -15,21 +16,58 @@ Point2d operator*(const double& d, const Point2d& p){
 
 int main()
 {
-    vector<Point2d> vert = {Point2d(0.0, 1.0),
-                            Point2d(1.0, 1.0),
-                            Point2d(1.0, 1.5),
-                            Point2d(1.5, 1.5),
-                            Point2d(1.5, 0.25),
-                            Point2d(1.0, 0.25),
-                            Point2d(1.0, 0.5),
-                            Point2d(0.5, 0.5),
-                            Point2d(0.5, 0.0),
-                            Point2d(0.0, 0.0)};
+    vector<Point2d> vert = {Point2d(0, 10),
+                            Point2d(15, 10),
+                            Point2d(15, 8),
+                            Point2d(2, 8),
+                            Point2d(2, 1),
+                            Point2d(8, 1),
+                            Point2d(8, 4),
+                            Point2d(6, 4),
+                            Point2d(6, 2),
+                            Point2d(4, 2),
+                            Point2d(4, 6),
+                            Point2d(10, 6),
+                            Point2d(10, 0),
+                            Point2d(0, 0)};
     Polygon poly(vert);
 
-    double a, b;
-    bool isParalell;
-    bool isOnSegment = poly.external[0].isOnSegment(poly.external[2], a, b, isParalell);
+    double param, fractpart, intpart;
+    int numX, numY;
+
+      param = 3.14159265;
+      fractpart = modf (param , &intpart);
+
+    std::vector<Point2d> domainPoints;
+    fractpart  = modf(poly.minP.x-1, &intpart);
+    double x0 = intpart+0.5;
+    fractpart  = modf(poly.minP.y-1, &intpart);
+    double y0 = intpart+0.5;
+    fractpart  = modf(poly.maxP.x+1, &intpart);
+    double xf = intpart+0.5;
+    fractpart  = modf(poly.maxP.y+1, &intpart);
+    double yf = intpart+0.5;
+    fractpart  = modf(xf-x0+1, &intpart);
+    numX = round(intpart);
+    fractpart  = modf(yf-y0+1, &intpart);
+    numY = round(intpart);
+
+    Point2d pTest;
+    bool isOnLine = false;
+
+    for (int i = 0; i < numY; i++)
+    {
+        for (int j = 0; j < numX; j++)
+        {
+            pTest.x = x0+j;
+            pTest.y = y0+i;
+            if(poly.isInside(pTest, isOnLine))
+            {
+                domainPoints.push_back(pTest);
+            }
+        }
+    }
+
 
     return 0;
 }
