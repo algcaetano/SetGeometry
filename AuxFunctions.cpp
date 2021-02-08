@@ -1,11 +1,31 @@
 #include "AuxFunctions.h"
 
+int power(const int& base, int exp)
+{
+    int result = 1;
+    for(int i = 0; i < exp; i++)
+    {
+        result*=base;
+    }
+    return result;
+}
+
 double power(const double& base, int exp)
 {
     double result = 1;
     for(int i = 0; i < exp; i++)
     {
         result*=base;
+    }
+    return result;
+}
+
+std::vector<int> power(const std::vector<int>& base, int exp)
+{
+    std::vector<int> result(base.size());
+    for (unsigned int i = 0; i < base.size(); i++)
+    {
+        result[i] = (power(base[i],exp));
     }
     return result;
 }
