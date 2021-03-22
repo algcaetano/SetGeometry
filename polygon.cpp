@@ -17,6 +17,7 @@ Polygon::Polygon(std::vector<Point2d>& vert)
     {
         this->external = createLines(vert);
         findLimits(vert);
+        this->externalID = std::vector<int>(this->external.size());
     }
 }
 std::vector<Line2d> Polygon::createLines(std::vector<Point2d>& vert)
@@ -65,7 +66,7 @@ bool Polygon::isInside(Point2d p, bool& isOn)
     }
     else
     {
-        Line2d line(p,Point2d(this->maxP.x+1,p.y));
+        Line2d line(p,Point2d(this->maxP.x+1,p.y)); //line segment from p to outside the polygon
         double a = 2;
         double b = 2;
         int i = 0;
@@ -73,7 +74,7 @@ bool Polygon::isInside(Point2d p, bool& isOn)
         int numVert = this->external.size();
         bool parallel =false;
         bool inter = false;
-        while((i<numVert)&&a!=0)
+        while((i<numVert)&&!compareDouble(a,0)) //run over all verts or skip if p is over one of the segments
         {
             inter = line.isOnSegment(this->external[i], a, b, parallel);
             if(inter && !parallel)
@@ -86,7 +87,7 @@ bool Polygon::isInside(Point2d p, bool& isOn)
                 i+=1;
             }
         }
-        if(a==0)
+        if(compareDouble(a,0)) //is over one of the sides
         {
             isOn = true;
             return true;
@@ -105,10 +106,70 @@ bool Polygon::isInside(Point2d p, bool& isOn)
     }
 }
 
+void Polygon::setExternalID(const int line, const int id)
+{
+    this->externalID[line] = id;
+}
+
+bool Polygon::isCrossing(Line2d refLine)
+{
+    double a, b; //dummy variables
+    bool isParallel; //dummy variable
+    bool isCrossing = false; //initial status
+    unsigned int numVert = 0; //initial side
+    while (!isCrossing && numVert < this->external.size()) //not crossing and not exceeding number of sides
+    {
+        isCrossing = refLine.isOnSegment(this->external[numVert], a, b, isParallel); //check if is crossing
+        isCrossing = compareDouble(a,0)?false:isCrossing; //check if the intersection is the initial point
+        numVert++; //new side
+    }
+    return isCrossing?true:false;
+}
+
+bool Polygon::isHited(Line2d line, Point2d& pInt, int& id, int& id2, bool& unique)
+{
+    double b, tempA;
+    double a = 2; //crossing point will result in a < 1
+    bool isParallel; //dummy variable
+    bool tempIsCrossing = false; //initial status
+    bool isCrossing = false; //return result
+    Point2d pTest; //test point to check if is pointing inside
+    bool isOn; //dummy variable
+    bool pointIn; //pointInside status
+    for (int i = 0; i < this->external.size(); i++)
+    {
+        tempIsCrossing = line.isOnSegment(this->external[i], tempA, b, isParallel); //check if is crossing
+        tempIsCrossing = compareDouble(tempA,0)?false:true; //a==0 not to be considered
+        if(tempIsCrossing)
+        {
+            pTest.x = (line.r0 + (line.v)*(tempA/10)).x;
+            pTest.y = (line.r0 + (line.v)*(tempA/10)).y;
+            pointIn = this->isInside(pTest,isOn);
+            if(pointIn) //check if is pointing to the inside
+            {
+                if(compareDouble(tempA,a)) //two equal intersection points
+                {
+                    id2 = i;
+                    unique = false;
+                }
+                else if(tempA<a) //new closest collision point
+                {
+                    a = tempA;
+                    id = i;
+                    pInt.x = (line.r0 + (line.v)*tempA).x;
+                    pInt.y = (line.r0 + (line.v)*tempA).y;
+                    isCrossing = true;
+                    unique = true;
+                }
+            }
+        }
+    }
+    return isCrossing;
+}
+
 void Polygon::addHole(std::vector<Point2d> vert)
 {
-    //checks if all points lie inside external
-    //this->internals.push_back(vert);
+    //future method to insert a hole into de domain
 }
 
 Polygon::~Polygon()

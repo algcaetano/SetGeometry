@@ -9,6 +9,7 @@
 #include <iostream>
 #include <fstream>
 #include"domainpoints.h"
+#include"collpar.h"
 
 using namespace std;
 
@@ -21,53 +22,14 @@ Point2d operator*(const double& d, const Point2d& p){
 int main()
 {
     vector<Point2d> vert = {Point2d(0, 0),
-                            Point2d(0, 100),
-                            Point2d(150, 100),
-                            Point2d(150, 85),
-                            Point2d(15, 85),
-                            Point2d(15, 20),
-                            Point2d(85, 20),
-                            Point2d(85, 35),
-                            Point2d(50, 35),
-                            Point2d(50, 70),
-                            Point2d(100, 70),
-                            Point2d(100, 0)};
+                            Point2d(0, 20),
+                            Point2d(20, 20),
+                            Point2d(20, 0)};
     Polygon poly(vert);
     Lattice lattice(4);
     DomainPoints domainPoints(poly, lattice);
 
-
-     //separar em boundary and fluid points
-//    std::vector<int> boundaryPoints;
-//    std::vector<int> fluidPoints;
-//    for (unsigned int i = 0; i < domainPoints.domainPoints.size(); i++) //all points should be checked
-//    {
-//        double a, b; //dummy variables
-//        bool isParallel; //dummy variable
-//        Line2d line(domainPoints.domainPoints[i], Point2d(1,1)); //just inicial point r0 is necessary
-//        bool isCrossing = false; //initial status
-//        unsigned int numVert = 0; //initial side
-//        while (!isCrossing && numVert < poly.external.size()) //not crossing and not exceeding number of sides
-//        {
-//            unsigned int numDir = 1; //initial direction - [0 0] was not used
-//            while (!isCrossing && numDir < lattice.ex.size()) //not crossing and not exceeding number of directions
-//            {
-//                line.v = Point2d(lattice.ex[numDir], lattice.ey[numDir]); //set the directions with the direction numDir
-//                isCrossing = line.isOnSegment(poly.external[numVert], a, b, isParallel); //check if is crossing
-//                numDir++; //new direction
-//            }
-//            numVert++; //new side
-//        }
-//        if (isCrossing)
-//        {
-//            boundaryPoints.push_back(i);
-//        }
-//        else
-//        {
-//            fluidPoints.push_back(i);
-//        }
-//    }
-
+    poly.setExternalID(3, 1);
 
     ofstream myfile;
     myfile.open ("domainPoints.csv");
