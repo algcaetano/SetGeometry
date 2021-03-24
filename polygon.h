@@ -29,7 +29,7 @@ public:
     //isCrossing => checks if a line segment intersect at least one of the sides of de polygon
     //@param bool => true if crosses, false if do not
     //@param line2d refLine => the line segment to be checked
-    bool isHited(Line2d line, Point2d& pInt, int& id, int& id2, bool& unique);
+    bool isHited(Line2d line, Point2d& pInt, int& id, int& id2, bool& unique, bool& pointIn);
     //isHited => checks if a line segment hits a wall from the polygon. Obs: if starting point is on the wall this is not considered a intersection point
     //Obs 2: if the line segment points outward the poligon, the result is false
     //Obs 3: if there are more than one intersection, the resulting id will be the closest one
@@ -38,6 +38,7 @@ public:
     //@param Point2d& pInt => the intersection point
     //@param int& id => the id of the side intersected
     //@param bool& unique => checks if the line intersect only one side
+    //@param bool& pointIn => checks if the line segment is pointing into the polygon
     void setExternalPrior(const int line, const int id);
     //setExternalPrior => gives an priority number to a external line segment. In case of a segment intersect a corner, the higher ID prevail
     //@param const int line => the line segment to be identified

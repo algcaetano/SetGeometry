@@ -9,13 +9,13 @@ CollPar::CollPar()
 
 CollPar::CollPar(DomainPoints domain, Polygon poly)
 {
-    for(int i = 0; i < domain.propWithCollDir.size(); i++)
+    for(unsigned long int i = 0; i < domain.propWithCollDir.size(); i++)
     {
-        Point2d p0 = domain.domainPoints[domain.propWithCollDir[i][0]];
-        int dir = domain.propWithCollDir[i][1];
-        double fraction = 1.0;
-        bool isOver;
-        std::vector<int> tempOutDir;
+        Point2d p0 = domain.domainPoints[domain.propWithCollDir[i][0]]; //initial point
+        int dir = domain.propWithCollDir[i][1]; //current direction
+        double fraction = 1.0; //initial fraction
+        bool isOver; //use to check if the colision is over (no collision)
+        std::vector<int> tempOutDir; //vector to store the possible out directions
         this->collPath.push_back(dirOut(p0, domain.lattice, dir, fraction, poly, isOver));
     }
 }
@@ -33,26 +33,26 @@ bool CollPar::isPossibleDirOut(Line2d line)
 std::vector<int> CollPar::dirOut(Point2d& p0, Lattice lattice, int dir, double& fraction, Polygon poly, bool& isOver)
 {
     Point2d pInt; //possile point of intersection
-    int id1, id2; //possible ids of wall collisions
-    bool isUnique, isOn; //dummy variables
-    Line2d lineInt; //line from point of intersection through the possible out direction
-    Line2d lineTest(p0, Point2d(fraction*lattice.ex[dir], fraction*lattice.ey[dir])); //line from p0 to end of direction dir
+    int id1, id2; //possible ids of wall collisions (id1 is the higher priority by the default)
+    bool isUnique, isOn, pointIn; //dummy variables
+    Line2d lineInt; //line from point of intersection to the possible out direction
+    Line2d lineTest(p0, Point2d(fraction*lattice.ex[dir], fraction*lattice.ey[dir])); //line from p0 to the end of direction dir
     std::vector<int> result, outDirections;
-    int count = 0;
-    if(isPossibleDirOut(lineTest)) // can be a propagation direction
+    int count = 0; //number of possible out directions
+    if(isPossibleDirOut(lineTest)) // can be a propagation direction (ends in a domain point)
     {
-        if(poly.isHited(lineTest, pInt, id1, id2, isUnique)) //propagates with collision
+        if(poly.isHited(lineTest, pInt, id1, id2, isUnique, pointIn)) //propagates with collision
         {
             result.push_back(id1); // line hited id (id with higher priority)
             p0 = pInt; //new p0;
             fraction *= 1-(pInt.distance(lineTest.r0)/(lineTest.r0+lineTest.v).distance(lineTest.r0)); //new overall fraction after collision
             lineInt.r0.x = pInt.x; //new initial (collision) point
             lineInt.r0.y = pInt.y; //new initial (collision) point
-            for (int i = 1; i < lattice.ex.size(); i++)
+            for (unsigned int i = 1; i < lattice.ex.size(); i++)
             {
                 lineInt.v.x = fraction*lattice.ex[i]; //new final point
                 lineInt.v.y = fraction*lattice.ey[i]; //new final point
-                if(isPossibleDirOut(lineInt)&&(poly.isHited(lineInt,pInt,id1,id2,isUnique))) //new line segment can be an out direction? if yes, hits any wall?
+                if(isPossibleDirOut(lineInt)&&(poly.isHited(lineInt,pInt,id1,id2,isUnique,pointIn))) //new line segment can be an out direction? if yes, hits any wall?
                 {
                     count++;
                     outDirections.push_back(i);
@@ -71,29 +71,20 @@ std::vector<int> CollPar::dirOut(Point2d& p0, Lattice lattice, int dir, double& 
             isOver = false;
             return result;
         }
-        else if(poly.isInside(lineTest.r0 + lineTest.v, isOn)) //propagates with no collision and ends inside polygon
+        else if(pointIn) //propagates with no collision and ends inside polygon
         {
-            if(!isOn)
-            {
-                result.push_back(dir); //
-                isOver = true; //propagation is over
-                return result;
-            }
-            else
-            {
-                std::cerr<<"not a propagation direction"<<std::endl;
-                isOver = true;
-                return result;
-            }
+            result.push_back(dir); //
+            isOver = true; //propagation is over
+            return result;
         }
-        else //propagates to outside of the polygon or tangent
+        else //propagates to outside of the polygon or is tangent to one of the sides of te poligon
         {
             std::cerr<<"not a propagation direction"<<std::endl;
             isOver = true;
             return result;
         }
     }
-    else //can not be a propagation direction
+    else //can not be a propagation direction (not ends at a domain point)
     {
         std::cerr<<"Is not a possible out direction"<<std::endl;
         isOver = true;

@@ -133,7 +133,7 @@ bool Polygon::isCrossing(Line2d refLine)
     return isCrossing?true:false;
 }
 
-bool Polygon::isHited(Line2d line, Point2d& pInt, int& id, int& id2, bool& unique)
+bool Polygon::isHited(Line2d line, Point2d& pInt, int& id, int& id2, bool& unique, bool& pointIn)
 {
     double b, tempA;
     double a = 2; //crossing point will result in a < 1
@@ -142,26 +142,27 @@ bool Polygon::isHited(Line2d line, Point2d& pInt, int& id, int& id2, bool& uniqu
     bool isCrossing = false; //return result
     Point2d pTest; //test point to check if is pointing inside
     bool isOn; //dummy variable
-    bool pointIn; //pointInside status
-    for (int i = 0; i < this->external.size(); i++)
+    bool tempPointIn; //pointInside status
+    for (unsigned int i = 0; i < this->external.size(); i++)
     {
         tempIsCrossing = line.isOnSegment(this->external[i], tempA, b, isParallel); //check if is crossing
         if(tempIsCrossing&&isParallel) //segmento paralelo e se cruza
         {
             pTest.x = (line.r0 + (line.v)*0.001).x; //ponto final deslocado no sentido da linha testada
             pTest.y = (line.r0 + (line.v)*0.001).y; //ponto final deslocado no sentido da linha testada
-            pointIn = this->isInside(pTest,isOn); //verificar onde o ponto deslocado cai
-            if(isOn) //this direction is tangent to one of the sides and can not be considered
+            tempPointIn = this->isInside(pTest,isOn); //verificar onde o ponto deslocado cai dentro do polígono, fora, ou sobre uma das linhas
+            if(isOn) //cai sobre uma das linhas => a reta testada é tangente
             {
-                return false;
+                pointIn = false; //do not pointing into domain
+                return false; //do not hit and do not point into the domain
             }
         }
-        else if(tempIsCrossing&&(!compareDouble(tempA,0))) //TempA = 0 not considered (colision is on the line segment)
+        if(tempIsCrossing&&(!compareDouble(tempA,0))) //se o segmento se cruza e o ponto de intersecção não é zero => TempA = 0 not considered (colision is on the line segment)
         {
-            pTest.x = (line.r0 + (line.v)*(tempA/10)).x;
-            pTest.y = (line.r0 + (line.v)*(tempA/10)).y;
-            pointIn = this->isInside(pTest,isOn);
-            if(pointIn) //check if is pointing to the inside
+            pTest.x = (line.r0 + (line.v)*(tempA/100)).x; //ponto deslocado no sentido do ponto de colisão
+            pTest.y = (line.r0 + (line.v)*(tempA/100)).y; //ponto deslocado no sentido do ponto de colisão
+            tempPointIn = this->isInside(pTest,isOn); //checa se ponto deslocado no sentido do ponto de colisão está dentro do polígono
+            if(tempPointIn) //check if is pointing to the inside
             {
                 if(compareDouble(tempA,a)) //two equal intersection points
                 {
@@ -176,15 +177,20 @@ bool Polygon::isHited(Line2d line, Point2d& pInt, int& id, int& id2, bool& uniqu
                     pInt.y = (line.r0 + (line.v)*tempA).y;
                     isCrossing = true;
                     unique = true;
+                    pointIn = true;
                 }
             }
         }
     }
-    if(!unique) //hitted a corner
+    if(!unique) //hitted a corner and there are two collision points
     {
         int tempId = id;
         id = (this->externalPriority[id]>this->externalPriority[id2])?id:id2; //id is the one with higher priority
-        id2 = (this->externalPriority[tempId]>this->externalPriority[id2])?id2:tempId;
+        id2 = (this->externalPriority[tempId]>this->externalPriority[id2])?id2:tempId; //id2 is the one with lower priority
+    }
+    if(!isCrossing) //chegou até aqui sem cruzar nenhum lado
+    {
+        pointIn = true;
     }
     return isCrossing;
 }
