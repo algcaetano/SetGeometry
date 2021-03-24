@@ -30,6 +30,9 @@ int main()
     DomainPoints domainPoints(poly, lattice);
 
     poly.setExternalID(3, 1);
+    poly.setExternalPrior(3,2);
+
+    CollPar collisionParam(domainPoints, poly);
 
     ofstream myfile;
     myfile.open ("domainPoints.csv");

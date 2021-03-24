@@ -7,8 +7,9 @@ class CollPar
 {
 public:
     CollPar();
-    CollPar(DomainPoints domain);
+    CollPar(DomainPoints domain, Polygon poly);
     ~CollPar();
+    std::vector<std::vector<int>> collPath;
 private:
     bool isPossibleDirOut(Line2d line);
     //isPossibleDirOut => checks if the end point of line can be a domain point

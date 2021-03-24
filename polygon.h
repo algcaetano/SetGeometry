@@ -15,6 +15,7 @@ public:
     //members
     std::vector<Line2d> external; //only one external polygon made of lines segments
     std::vector<int> externalID;
+    std::vector<int> externalPriority;
     std::vector<std::vector<Line2d>> internals; //can have multiple holes each one defined by one polygon made of line segments
     Point2d minP, maxP; //bottom left and up right limits
     //functions
@@ -37,6 +38,10 @@ public:
     //@param Point2d& pInt => the intersection point
     //@param int& id => the id of the side intersected
     //@param bool& unique => checks if the line intersect only one side
+    void setExternalPrior(const int line, const int id);
+    //setExternalPrior => gives an priority number to a external line segment. In case of a segment intersect a corner, the higher ID prevail
+    //@param const int line => the line segment to be identified
+    //@param const int id => the id number to be given to the line segment
 private:
     //members
     Line2d limits;

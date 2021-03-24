@@ -17,9 +17,11 @@ Polygon::Polygon(std::vector<Point2d>& vert)
     {
         this->external = createLines(vert);
         findLimits(vert);
-        this->externalID = std::vector<int>(this->external.size());
+        this->externalID = std::vector<int>(this->external.size(),0);
+        this->externalPriority = std::vector<int>(this->external.size(),0);
     }
 }
+
 std::vector<Line2d> Polygon::createLines(std::vector<Point2d>& vert)
 {
     if (vert.size()<3){
@@ -111,6 +113,11 @@ void Polygon::setExternalID(const int line, const int id)
     this->externalID[line] = id;
 }
 
+void Polygon::setExternalPrior(const int line, const int id)
+{
+    this->externalPriority[line] = id;
+}
+
 bool Polygon::isCrossing(Line2d refLine)
 {
     double a, b; //dummy variables
@@ -139,8 +146,17 @@ bool Polygon::isHited(Line2d line, Point2d& pInt, int& id, int& id2, bool& uniqu
     for (int i = 0; i < this->external.size(); i++)
     {
         tempIsCrossing = line.isOnSegment(this->external[i], tempA, b, isParallel); //check if is crossing
-        tempIsCrossing = compareDouble(tempA,0)?false:true; //a==0 not to be considered
-        if(tempIsCrossing)
+        if(tempIsCrossing&&isParallel) //segmento paralelo e se cruza
+        {
+            pTest.x = (line.r0 + (line.v)*0.001).x; //ponto final deslocado no sentido da linha testada
+            pTest.y = (line.r0 + (line.v)*0.001).y; //ponto final deslocado no sentido da linha testada
+            pointIn = this->isInside(pTest,isOn); //verificar onde o ponto deslocado cai
+            if(isOn) //this direction is tangent to one of the sides and can not be considered
+            {
+                return false;
+            }
+        }
+        else if(tempIsCrossing&&(!compareDouble(tempA,0))) //TempA = 0 not considered (colision is on the line segment)
         {
             pTest.x = (line.r0 + (line.v)*(tempA/10)).x;
             pTest.y = (line.r0 + (line.v)*(tempA/10)).y;
@@ -163,6 +179,12 @@ bool Polygon::isHited(Line2d line, Point2d& pInt, int& id, int& id2, bool& uniqu
                 }
             }
         }
+    }
+    if(!unique) //hitted a corner
+    {
+        int tempId = id;
+        id = (this->externalPriority[id]>this->externalPriority[id2])?id:id2; //id is the one with higher priority
+        id2 = (this->externalPriority[tempId]>this->externalPriority[id2])?id2:tempId;
     }
     return isCrossing;
 }

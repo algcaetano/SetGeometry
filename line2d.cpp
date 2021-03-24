@@ -70,30 +70,48 @@ bool Line2d::isOnSegment(Line2d& line, double& a, double& b, bool& isParallel)
     {
         if (isParallel)
         {
-            double dist1 = calculateA(line.r0);
+            double dist1 = calculateA(line.r0); //"a" para chegar no ponto inicial
             Point2d pf = line.r0+line.v;
-            double dist2 = calculateA(pf);
-            if (isOnRange(0,1,dist1))
+            double dist2 = calculateA(pf); //"a" para chegar no ponto final
+            double maxDist = (dist1>dist2)?dist1:dist2;
+            double minDist = (dist1<dist2)?dist1:dist2;
+            if (isOnRange(0,1,dist1)) //o ponto final está dentro do segmento
             {
-                if (isOnRange(0,1,dist2))
+                if (isOnRange(0,1,dist2)) //o ponto inicial está dentro do segmento
                 {
-                    a = (dist1<dist2)?dist1:dist2;
+                    a = (dist1<dist2)?dist1:dist2; //os dois pontos estão dentro do segmento, "a" é referente ao mais próximo
                     return true;
                 }
-                else
+                else //somente o ponto incial está dentro do segmento => tem que checar para onde aponta
                 {
-                    a = dist1;
-                    return true;
+                    if (isOnRange(minDist,maxDist,0)) //the starting point of this line is between the initial and final points of the line tested
+                    {
+                        a = 0;
+                        return true;
+                    }
+                    else
+                    {
+                        a = dist1;
+                        return true;
+                    }
                 }
             }
-            else
+            else //ponto inicial não faz parte do segmento
             {
-                if (isOnRange(0,1,dist2))
+                if (isOnRange(0,1,dist2)) //somente o ponto final faz parte do segmento
                 {
-                    a = dist2;
-                    return true;
+                    if (isOnRange(minDist,maxDist,0)) //the starting point of this line is between the initial and final points of the line tested
+                    {
+                        a = 0;
+                        return true;
+                    }
+                    else
+                    {
+                        a = dist2;
+                        return true;
+                    }
                 }
-                else
+                else //nem o ponto inicial nem o final do segmento testado está dentro deste segmento
                 {
                     if (isOnRange(0,1,line.calculateA(this->r0)))
                     {
